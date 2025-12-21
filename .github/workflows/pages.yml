@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     steps:
     - uses: actions/checkout@v4
 
@@ -19,15 +16,24 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-
+    
     - name: Build
       run: |
         npm install
         npm run build
+    
     - name: Upload web artifacts
       uses: actions/upload-pages-artifact@v4.0.0
       with:
         path: dist/
+  
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v4.0.5
       
