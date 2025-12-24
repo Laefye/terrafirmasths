@@ -2,7 +2,7 @@ import { Button, Container, Dialog, DialogContent, DialogTitle, Divider, IconBut
 import StepSprite from "../components/StepSprite"
 import Conditions from "../components/Conditions"
 import { useEffect, useRef, useState } from "react"
-import { getTrace } from "../logic/math"
+import { getTrace, MathError } from "../logic/math"
 import { createItem, deleteItem, loadItems, saveItem, type Item } from "../logic/storage"
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -86,7 +86,14 @@ function Anvil() {
     const [storageOpen, setStorageOpen] = useState<boolean>(false);
     const [saveOpen, setSaveOpen] = useState<boolean>(false);
 
-    const steps = getTrace(fromPoints, toPoints - conditions.reduce((a, b) => a + b, 0));
+    let steps: number[] = [];
+    try {
+        steps = getTrace(fromPoints, toPoints - conditions.reduce((a, b) => a + b, 0));
+    } catch (e) {
+        if (e instanceof MathError) {
+            steps = [];
+        }
+    }
 
     const addCondition = (value: number) => {
         if (conditions.length < 3) {
@@ -148,8 +155,8 @@ function Anvil() {
                                 setToPoints(to);
                             }}
                         />
-                        <TextField label="From Points" type="number" value={fromPoints} onChange={(e) => setFromPoints(Number(e.target.value))} />
-                        <TextField label="To Points" type="number" value={toPoints} onChange={(e) => setToPoints(Number(e.target.value))} />
+                        <TextField label="От" type="number" value={fromPoints} onChange={(e) => setFromPoints(Number(e.target.value))} />
+                        <TextField label="До" type="number" value={toPoints} onChange={(e) => setToPoints(Number(e.target.value))} />
                         <Divider/>
                         <Button variant="outlined" onClick={() => setSaveOpen(true)}>Сохранить</Button>
                         <Button variant="outlined" onClick={() => setStorageOpen(true)}>Сохранённые расчёты</Button>
